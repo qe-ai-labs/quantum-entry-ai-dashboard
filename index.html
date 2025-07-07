@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quantum Entry AI III - XP Dashboard</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9f9f9;
+    }
+    header {
+      background: #1e1e2f;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+    main {
+      padding: 1rem;
+    }
+    section {
+      margin-bottom: 2rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+    }
+    th {
+      background: #333;
+      color: white;
+    }
+    .progress-bar {
+      background-color: #eee;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .progress-bar-inner {
+      height: 20px;
+      background-color: #4caf50;
+      width: 0%;
+      text-align: center;
+      color: white;
+      line-height: 20px;
+    }
+    @media (max-width: 600px) {
+      h1, h2 { font-size: 1.2rem; }
+      table, th, td { font-size: 0.8rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Quantum Entry AI III</h1>
+    <p>XP Progress Dashboard</p>
+  </header>
+  <main>
+    <section>
+      <h2>Filter by Date</h2>
+      <label>Start Date: <input type="date" id="startDate"></label>
+      <label>End Date: <input type="date" id="endDate"></label>
+      <button onclick="loadDashboard()">Apply Filter</button>
+    </section>
+
+    <section>
+      <h2>XP Progress Bar</h2>
+      <div class="progress-bar">
+        <div class="progress-bar-inner" id="xpProgress">Loading...</div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Cumulative XP Chart</h2>
+      <div id="xpChart" style="height: 300px;"></div>
+    </section>
+
+    <section>
+      <h2>Quest Log</h2>
+      <table>
+        <thead>
+          <tr><th>Date</th><th>Quest Name</th><th>Type</th><th>XP</th><th>Status</th></tr>
+        </thead>
+        <tbody id="questTable"></tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Streak Status</h2>
+      <p id="streakStatus">Calculating...</p>
+    </section>
+  </main>
+
+  <script>
+    async function loadDashboard() {
+      const response = await fetch('quantum_entry_ai_data.json');
+      const data = await response.json();
+
+      const startDate = document.getElementById('startDate').value;
+      const endDate = document.getElementById('endDate').value;
+
+      let xpLog = data.xp_log;
+      const questLog = data.quest_log;
+      const levels = data.level_thresholds;
+
+      if (startDate && endDate) {
+        xpLog = xpLog.filter(entry => entry.Date >= startDate && entry.Date <= endDate);
+      }
+
+      let cumulativeXP = 0;
+      const xDates = [];
+      const yCumulative = [];
+      let currentStreak = 0, longestStreak = 0;
+
+      xpLog.forEach(entry => {
+        const earned = entry.XP_Earned;
+        const bonus = entry.Bonus_XP;
+        const total = earned + bonus;
+
+        cumulativeXP += total;
+        xDates.push(entry.Date);
+        yCumulative.push(cumulativeXP);
+
+        if (earned > 0) {
+          currentStreak++;
+          if (currentStreak > longestStreak) longestStreak = currentStreak;
+        } else {
+          currentStreak = 0;
+        }
+      });
+
+      let currentLevel = 0;
+      for (let i = 0; i < levels.length; i++) {
+        if (cumulativeXP >= levels[i]) currentLevel = i;
+        else break;
+      }
+      const nextXP = levels[currentLevel + 1] || cumulativeXP;
+      const prevXP = levels[currentLevel] || 0;
+      const percent = ((cumulativeXP - prevXP) / (nextXP - prevXP)) * 100;
+
+      const progressBar = document.getElementById('xpProgress');
+      progressBar.style.width = percent + '%';
+      progressBar.innerText = `Level ${currentLevel} - ${percent.toFixed(1)}%`;
+
+      Plotly.newPlot('xpChart', [{
+        x: xDates,
+        y: yCumulative,
+        mode: 'lines+markers',
+        name: 'Cumulative XP'
+      }], {
+        margin: { t: 30 },
+        xaxis: { title: 'Date' },
+        yaxis: { title: 'XP' }
+      });
+
+      const questTable = document.getElementById('questTable');
+      questTable.innerHTML = '';
+      questLog.forEach(q => {
+        if (!startDate || (q.Date >= startDate && q.Date <= endDate)) {
+          const row = `<tr><td>${q.Date}</td><td>${q["Quest Name"]}</td><td>${q.Type}</td><td>${q.XP}</td><td>${q.Status}</td></tr>`;
+          questTable.innerHTML += row;
+        }
+      });
+
+      document.getElementById('streakStatus').innerText = `Longest XP streak: ${longestStreak} days`;
+    }
+
+    loadDashboard();
+  </script>
+</body>
+</html>

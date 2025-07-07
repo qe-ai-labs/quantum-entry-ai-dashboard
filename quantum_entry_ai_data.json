@@ -1,0 +1,72 @@
+{
+  "xp_log": [
+    {
+      "Date": "2025-06-03",
+      "XP_Target": 10,
+      "XP_Earned": 10,
+      "Bonus_XP": 5
+    },
+    {
+      "Date": "2025-06-04",
+      "XP_Target": 10,
+      "XP_Earned": 8,
+      "Bonus_XP": 5
+    },
+    {
+      "Date": "2025-06-05",
+      "XP_Target": 10,
+      "XP_Earned": 0,
+      "Bonus_XP": 0
+    },
+    {
+      "Date": "2025-06-06",
+      "XP_Target": 10,
+      "XP_Earned": 10,
+      "Bonus_XP": 5
+    },
+    {
+      "Date": "2025-06-07",
+      "XP_Target": 10,
+      "XP_Earned": 5,
+      "Bonus_XP": 5
+    }
+  ],
+  "quest_log": [
+    {
+      "Date": "2025-06-03",
+      "Quest Name": "Daily XP Earned",
+      "Type": "Daily",
+      "XP": 5,
+      "Status": "Completed"
+    },
+    {
+      "Date": "2025-06-04",
+      "Quest Name": "Daily XP Earned",
+      "Type": "Daily",
+      "XP": 5,
+      "Status": "Completed"
+    },
+    {
+      "Date": "2025-06-06",
+      "Quest Name": "Daily XP Earned",
+      "Type": "Daily",
+      "XP": 5,
+      "Status": "Completed"
+    },
+    {
+      "Date": "2025-06-07",
+      "Quest Name": "Daily XP Earned",
+      "Type": "Daily",
+      "XP": 5,
+      "Status": "Completed"
+    }
+  ],
+  "level_thresholds": [
+    0,
+    100,
+    250,
+    500,
+    800,
+    1200
+  ]
+}
